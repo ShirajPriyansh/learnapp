@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Sign Up{% endblock %}
+{% block page_id %}signup{% endblock %}
+{% block content %}
+<section class="auth-card">
+  <div class="auth-visual" aria-hidden="true">
+    <span class="sun"></span>
+    <span class="orbit orbit-one"></span>
+    <span class="orbit orbit-two"></span>
+    <span class="mini-planet planet-blue"></span>
+    <span class="mini-planet planet-coral"></span>
+  </div>
+  <h1>Create your account</h1>
+  <p class="lede">Start learning with quick lessons, puzzles, and quiz feedback.</p>
+  {% if error %}<p class="error">{{ error }}</p>{% endif %}
+  <form method="post" class="auth-form">
+    <input name="username" placeholder="Username" required>
+    <input name="password" type="password" placeholder="Password" required>
+    <button type="submit" data-track="signup-submit">Create Account</button>
+  </form>
+  <p class="form-note">Have an account? <a href="/login">Login</a></p>
+</section>
+{% endblock %}

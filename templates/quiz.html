@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Quiz{% endblock %}
+{% block page_id %}quiz1{% endblock %}
+{% block content %}
+<section class="page-header">
+  <p class="eyebrow">Knowledge check</p>
+  <h1>Solar System Quiz</h1>
+  <p class="lede">Choose the best answer for each question and get instant feedback.</p>
+</section>
+{% for q in questions %}
+<form class="quiz-form" data-question-id="{{ q.question_id }}" data-quiz-id="{{ q.quiz_id }}">
+  <p class="question-text">{{ q.question_text }}</p>
+  <label><input type="radio" name="answer" value="A"> <span>{{ q.option_a }}</span></label>
+  <label><input type="radio" name="answer" value="B"> <span>{{ q.option_b }}</span></label>
+  <label><input type="radio" name="answer" value="C"> <span>{{ q.option_c }}</span></label>
+  <label><input type="radio" name="answer" value="D"> <span>{{ q.option_d }}</span></label>
+  <button type="submit" data-track="quiz-submit">Submit Answer</button>
+  <p class="result"></p>
+</form>
+{% endfor %}
+
+<script>
+const startTime = Date.now();
+document.querySelectorAll('.quiz-form').forEach(form => {
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const selected = form.querySelector('input[name="answer"]:checked');
+    if (!selected) return;
+    fetch('/api/quiz-submit', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        quiz_id: form.dataset.quizId,
+        question_id: form.dataset.questionId,
+        selected_option: selected.value,
+        time_taken: (Date.now() - startTime) / 1000
+      })
+    })
+    .then(r => r.json())
+    .then(data => {
+      form.querySelector('.result').textContent = data.is_correct ? 'Correct!' : 'Incorrect.';
+    });
+  });
+});
+</script>
+{% endblock %}

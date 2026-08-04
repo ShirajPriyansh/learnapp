@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block title %}Lesson{% endblock %}
+{% block page_id %}lesson1{% endblock %}
+{% block content %}
+<section class="lesson-hero">
+  <div>
+    <p class="eyebrow">Lesson 1</p>
+    <h1>Our Solar System</h1>
+    <p class="lede">Explore the Sun, planets, and the patterns that shape days, nights, and years.</p>
+  </div>
+  <div class="solar-graphic" aria-hidden="true">
+    <span class="sun"></span>
+    <span class="planet mercury"></span>
+    <span class="planet venus"></span>
+    <span class="planet earth"></span>
+    <span class="planet mars"></span>
+    <span class="planet jupiter"></span>
+  </div>
+</section>
+
+<section class="content-panel">
+  <h2>Reading material</h2>
+  <p>Our solar system has the Sun at the center, with 8 planets orbiting around it:
+     Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, and Neptune. The four planets
+     closest to the Sun - Mercury, Venus, Earth, and Mars - are small and rocky. The four
+     farther out - Jupiter, Saturn, Uranus, and Neptune - are much bigger and made mostly
+     of gas.</p>
+  <p>Earth is special because it's the only planet we know of with liquid water, breathable
+     air, and living things. Earth spins on its axis once every 24 hours - that's why we
+     have day and night - and it takes 365 days to travel all the way around the Sun, which
+     is one year.</p>
+  <button data-track="expand-fun-fact" onclick="document.getElementById('fun-fact').style.display='block'">
+    Show a fun fact
+  </button>
+  <p id="fun-fact" style="display:none">Fun fact: A day on Venus is longer than its year!
+     Venus takes 243 Earth days to spin once, but only 225 Earth days to orbit the Sun.</p>
+</section>
+
+<section class="content-panel">
+  <h2>Video</h2>
+  <div id="yt-player" data-video-id="NDvsdrTGVFM"></div>
+</section>
+
+<section class="content-panel">
+  <h2>Science puzzle: Order the planets</h2>
+  <p>Click the planets in order, starting from the one closest to the Sun.</p>
+  <div id="puzzle-options">
+    <button class="planet-btn" data-track="puzzle-planet" data-planet="Mercury">Mercury</button>
+    <button class="planet-btn" data-track="puzzle-planet" data-planet="Venus">Venus</button>
+    <button class="planet-btn" data-track="puzzle-planet" data-planet="Earth">Earth</button>
+    <button class="planet-btn" data-track="puzzle-planet" data-planet="Mars">Mars</button>
+    <button class="planet-btn" data-track="puzzle-planet" data-planet="Jupiter">Jupiter</button>
+  </div>
+  <p class="order-line">Your order: <span id="puzzle-order"></span></p>
+  <p id="puzzle-result"></p>
+</section>
+
+<a class="button-link" href="/quiz" data-track="go-to-quiz">Go to Quiz</a>
+
+<script>
+const correctOrder = ["Mercury", "Venus", "Earth", "Mars", "Jupiter"];
+let userOrder = [];
+document.querySelectorAll('.planet-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    userOrder.push(btn.dataset.planet);
+    document.getElementById('puzzle-order').textContent = userOrder.join(" -> ");
+    logEvent('click', { element_id: 'puzzle-planet-' + btn.dataset.planet, element_type: 'BUTTON' });
+    if (userOrder.length === correctOrder.length) {
+      const isCorrect = JSON.stringify(userOrder) === JSON.stringify(correctOrder);
+      document.getElementById('puzzle-result').textContent = isCorrect
+        ? "Correct! That's the right order from the Sun." : "Not quite - try again!";
+      logEvent('puzzle_attempt', { puzzle_id: 'planet-order', user_order: userOrder, is_correct: isCorrect });
+      if (!isCorrect) { userOrder = []; setTimeout(() => document.getElementById('puzzle-order').textContent = '', 1200); }
+    }
+  });
+});
+</script>
+<script>
+function onYouTubeIframeAPIReady() {
+  const playerElement = document.getElementById('yt-player');
+  if (!playerElement) return;
+
+  const videoId = playerElement.dataset.videoId;
+  new YT.Player('yt-player', {
+    videoId: videoId,
+    playerVars: {
+      rel: 0
+    },
+    events: {
+      onStateChange: onYouTubePlayerStateChange
+    }
+  });
+}
+
+function onYouTubePlayerStateChange(event) {
+  const actions = {
+    0: 'ended',
+    1: 'play',
+    2: 'pause'
+  };
+  const action = actions[event.data];
+  if (!action) return;
+
+  const player = event.target;
+  logEvent('video_action', {
+    video_id: player.getVideoData().video_id,
+    action: action,
+    video_timestamp: player.getCurrentTime()
+  });
+}
+</script>
+<script src="https://www.youtube.com/iframe_api"></script>
+{% endblock %}
