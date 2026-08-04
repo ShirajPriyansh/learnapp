@@ -8,7 +8,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
 app.secret_key = "dev-secret-change-this"  # change before any real deployment
-DB_PATH = "app.db"
+#DB_PATH = "app.db"    ## this line of code is replaced by the below two line of code
+import os
+DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "app.db")
 
 
 def get_db():
